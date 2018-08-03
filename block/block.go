@@ -13,6 +13,7 @@ type Block struct {
 	PreHash []byte
 	Hash []byte
 	Data []byte
+	Nonce int
 }
 
 func NewBlock(str string, preHash []byte) *Block {
@@ -21,9 +22,18 @@ func NewBlock(str string, preHash []byte) *Block {
 		PreHash:preHash,
 		Hash:[]byte{},
 		Data:[]byte(str),
+		Nonce:0,
 	}
 
-	block.buildHash()
+	//使用简单的hash创建
+	//block.buildHash()
+
+	//使用工作量证明创建hash
+	pow := NewWorkProof(block)
+	nonce, hash := pow.Run()
+
+	block.Hash = hash[:]
+	block.Nonce = nonce
 
 	return block
 }
