@@ -80,5 +80,5 @@ func (p *WorkProof)Validate()  bool {
 
 	hashInt.SetBytes(hash[:])
 
-	return hashInt.Cmp(p.target) == 1
+	return hashInt.Cmp(p.target) == -1
 }
