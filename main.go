@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"blockchain/block"
-	"strconv"
 )
 
 func main() {
 
-	blockChain := block.NewBlockChain()
+/*	blockChain := block.NewBlockChain()
 
 	blockChain.AddBlock("block-1")
 	blockChain.AddBlock("block-2")
@@ -21,6 +19,8 @@ func main() {
 		pow := block.NewWorkProof(b)
 		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
 		fmt.Println()
-	}
+	}*/
 
+	blockChain := block.NewBlockChain()
+	defer blockChain.Db.Close()
 }

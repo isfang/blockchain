@@ -6,6 +6,8 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
+	"encoding/gob"
+	"log"
 )
 
 type Block struct {
@@ -38,18 +40,43 @@ func NewBlock(str string, preHash []byte) *Block {
 	return block
 }
 
-func (self *Block) buildHash()  {
-	timeStamp := []byte(strconv.FormatInt(self.Timestamp, 10))
+func NewGenesisBlock() *Block {
+	return NewBlock("genesis block", []byte{})
+}
 
-	headers := bytes.Join([][]byte{self.PreHash, self.Data, timeStamp}, []byte{})
+func (b *Block) buildHash()  {
+	timeStamp := []byte(strconv.FormatInt(b.Timestamp, 10))
+
+	headers := bytes.Join([][]byte{b.PreHash, b.Data, timeStamp}, []byte{})
 
 	hash := sha256.Sum256(headers)
 
 	fmt.Println( "hash:", hash)
 
-	self.Hash = hash[:]
+	b.Hash = hash[:]
 }
 
-func NewGenesisBlock() *Block {
-	return NewBlock("genesis block", []byte{})
+func (b *Block)Serialize() []byte {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+
+	err := encoder.Encode(b)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return result.Bytes()
+}
+
+func Deserialize(d []byte) *Block {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewReader(d))
+	err := decoder.Decode(&block)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return &block
 }
