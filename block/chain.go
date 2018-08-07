@@ -11,7 +11,7 @@ const blocksBucket = "blocks"
 
 type BlockChain struct {
 	Tip []byte
-	Db *bolt.DB
+	BlotDB *bolt.DB
 }
 
 
@@ -55,7 +55,7 @@ func NewBlockChain() *BlockChain  {
 
 	bc := BlockChain{
 		Tip:tip,
-		Db:db,
+		BlotDB:db,
 	}
 
 	return &bc
@@ -71,7 +71,7 @@ func (bc *BlockChain)AddBlock(str string)  {
 	//b.Blocks = append(b.Blocks, targetBlock)
 
 	var lastHash []byte
-	err := bc.Db.View(func(tx *bolt.Tx) error {
+	err := bc.BlotDB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
 		lastHash = b.Get([]byte("l"))
 		return nil
@@ -82,7 +82,7 @@ func (bc *BlockChain)AddBlock(str string)  {
 
 	nb := NewBlock(str, lastHash)
 
-	bc.Db.Update(func(tx *bolt.Tx) error {
+	bc.BlotDB.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
 		err := b.Put(nb.Hash, nb.Serialize())
 		if err != nil {
@@ -98,6 +98,37 @@ func (bc *BlockChain)AddBlock(str string)  {
 	})
 }
 
+type BlockchainIterator struct {
+	currentHash []byte
+	db *bolt.DB
+}
+
+func (bc *BlockChain) Iterator() *BlockchainIterator {
+	bci := &BlockchainIterator{bc.Tip, bc.BlotDB}
+
+	return bci
+}
+
+// 返回链中的下一个块
+func (i *BlockchainIterator) Next() *Block {
+	var block *Block
+
+	err := i.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(blocksBucket))
+		encodedBlock := b.Get(i.currentHash)
+		block = Deserialize(encodedBlock)
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	i.currentHash = block.PreHash
+
+	return block
+}
 
 
 //type BlockChain struct {
