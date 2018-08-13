@@ -4,6 +4,7 @@ import (
 	"github.com/boltdb/bolt"
 	"log"
 	"fmt"
+	"os"
 )
 
 const dbFile = "blockchain.db"
@@ -16,8 +17,13 @@ type BlockChain struct {
 
 
 
-// start with genesis block
-func NewBlockChain() *BlockChain  {
+func NewBlockChain(address string) *BlockChain  {
+
+	if !dbExists() {
+		fmt.Println("no chain found. create a chain with genesis block.")
+		os.Exit(1)
+	}
+
 	var tip []byte
 	db, err := bolt.Open(dbFile, 0600, nil)
 
@@ -27,26 +33,7 @@ func NewBlockChain() *BlockChain  {
 
 	err = db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
-
-		if b == nil {
-			fmt.Println("create genesis block")
-			genesis := NewGenesisBlock()
-
-			b, err := tx.CreateBucket([]byte(blocksBucket))
-			if err != nil {
-				log.Panic(err)
-			}
-
-			b.Put(genesis.Hash, genesis.Serialize())
-
-			err = b.Put([]byte("l"), genesis.Hash)
-			if err != nil {
-				log.Panic(err)
-			}
-			tip = genesis.Hash
-		} else {
-			tip = b.Get([]byte("l"))
-		}
+		tip = b.Get([]byte("l"))
 		return nil
 	})
 	if err != nil {
@@ -98,6 +85,8 @@ func (bc *BlockChain)AddBlock(str string)  {
 	})
 }
 
+
+//迭代器
 type BlockchainIterator struct {
 	currentHash []byte
 	db *bolt.DB
@@ -130,6 +119,11 @@ func (i *BlockchainIterator) Next() *Block {
 	return block
 }
 
+func dbExists() bool  {
+	_, err := os.Stat(dbFile)
+
+	return !os.IsNotExist(err)
+}
 
 //type BlockChain struct {
 //	Blocks []*Block
