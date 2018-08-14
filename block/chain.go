@@ -48,6 +48,56 @@ func NewBlockChain(address string) *BlockChain  {
 	return &bc
 }
 
+//创建一个新的链每个链
+func CreateBlockchain(address string) *BlockChain {
+	if dbExists() {
+		fmt.Println("chain is exist.")
+		os.Exit(1)
+	}
+
+	var tip []byte
+	db, err := bolt.Open(dbFile, 0600, nil)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	//err = db.Update(func(tx *bolt.Tx) error {
+	//	cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
+	//	genesis := NewGenesisBlock(cbtx)
+	//
+	//	b, err := tx.CreateBucket([]byte(blocksBucket))
+	//	if err != nil {
+	//		log.Panic(err)
+	//	}
+	//
+	//	err = b.Put(genesis.Hash, genesis.Serialize())
+	//	if err != nil {
+	//		log.Panic(err)
+	//	}
+	//
+	//	err = b.Put([]byte("l"), genesis.Hash)
+	//	if err != nil {
+	//		log.Panic(err)
+	//	}
+	//	tip = genesis.Hash
+	//
+	//	return nil
+	//})
+
+	err = db.Update(func(tx *bolt.Tx) error {
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+
+
+}
+
 func (bc *BlockChain)AddBlock(str string)  {
 
 	//preBlock := b.Blocks[len(b.Blocks)-1]
