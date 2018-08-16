@@ -189,6 +189,6 @@ func (b *BlockChain)UTXO(address string, amount int)  {
 func (b *BlockChain)UnspentTransaction(address string) []Transaction  {
 
 	var result []Transaction
-	
+
 }
 
