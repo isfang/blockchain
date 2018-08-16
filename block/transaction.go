@@ -59,3 +59,13 @@ func NewGenesisTA(to, data string) *Transaction {
 
 	return &ta
 }
+
+//创建一个交易 UTXO未使用的交易输出
+func NewUTXOTransaction(from, to, amount string, b *BlockChain) *Transaction {
+	var ins []TAInput
+	var outs []TAOutput
+
+	//遍历链找到我的全部余额
+
+}
+

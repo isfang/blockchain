@@ -6,13 +6,10 @@ import (
 	"os"
 	"fmt"
 	"strconv"
+	"strings"
 )
-var action = flag.String("a", "", "cg: create a genesis chain; show: show chain; send: send transation to address")
+var action = flag.String("a", "", "cg: create a genesis chain; show: show chain; cost: from/to/amount")
 var data = flag.String("d", "", "address for user")
-
-var sendFrom = flag.String("d", "", "address consumer")
-var sendTo = flag.String("d", "", "address receiver")
-var sendAmount = flag.String("d", "", "amount")
 
 func main() {
 	flag.Parse()
@@ -100,7 +97,35 @@ func main() {
 				fmt.Println("is end.")
 				break
 			}
+
+		}
+	case "cost":
+
+		fmt.Println("cost")
+
+		if *data == "" {
+			fmt.Println("-d format with from/to/amount")
+			os.Exit(1)
 		}
 
+		params := strings.Split(*data, "/")
+
+		if len(params) < 3 {
+			fmt.Println("-d format with from/to/amount")
+			os.Exit(1)
+		}
+
+		from := params[0]
+		to := params[1]
+		amount := params[2]
+
+		fmt.Println("from is ", from, " to is ", to, " amount is ", amount)
+
+		bc := block.NewBlockChain(from)
+		defer bc.BlotDB.Close()
+
+
+
 	}
+
 }

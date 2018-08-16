@@ -5,6 +5,8 @@ import (
 	"log"
 	"fmt"
 	"os"
+	"net"
+	"net/mail"
 )
 
 const dbFile = "blockchain.db"
@@ -178,23 +180,15 @@ func dbExists() bool  {
 	return !os.IsNotExist(err)
 }
 
-//type BlockChain struct {
-//	Blocks []*Block
-//}
-//
-//
-//
-//// start with genesis block
-//func NewBlockChain() *BlockChain  {
-//	return &BlockChain{Blocks:[]*Block{NewGenesisBlock()}}
-//}
-//
-//func (b *BlockChain)AddBlock(str string)  {
-//
-//	preBlock := b.Blocks[len(b.Blocks)-1]
-//
-//	targetBlock := NewBlock(str, preBlock.Hash)
-//
-//	b.Blocks = append(b.Blocks, targetBlock)
-//}
+//从address中找到 amount 的余量
+func (b *BlockChain)UTXO(address string, amount int)  {
+	 usefulOutputs := make(map[string][]int)
+}
+
+//找出全部的没有用掉的交易Transaction
+func (b *BlockChain)UnspentTransaction(address string) []Transaction  {
+
+	var result []Transaction
+	
+}
 
