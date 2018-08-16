@@ -22,7 +22,9 @@ func NewWorkProof(b *Block) *WorkProof {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 
-	fmt.Println("block ", string(b.Data),"target is ", target)
+	fmt.Println("target is:")
+
+	fmt.Printf("%064x \n", target)
 
 	pow := &WorkProof{
 		block:b,
@@ -36,7 +38,7 @@ func (p *WorkProof)prepareData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			p.block.PreHash,
-			p.block.Data,
+			p.block.buildHash(),
 			util.IntToHex(p.block.Timestamp),
 			util.IntToHex(int64(targetBits)),
 			util.IntToHex(int64(nonce)),
@@ -51,7 +53,7 @@ func (p *WorkProof) Run()(int, []byte)  {
 	var hash [32]byte
 
 	nonce := 0
-	fmt.Printf("Mining the block containing \"%s\"\n", p.block.Data)
+	fmt.Printf("look for a hash for block")
 
 	for nonce < maxNonce {
 		data := p.prepareData(nonce)

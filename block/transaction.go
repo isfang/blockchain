@@ -1,6 +1,11 @@
 package block
 
-import "fmt"
+import (
+	"fmt"
+	"bytes"
+	"encoding/gob"
+	"crypto/sha256"
+)
 
 const subsidy = 10
 
@@ -16,14 +21,31 @@ type TAOutput struct {
 }
 
 type Transaction struct {
-	ID []byte				//交易ID
+	ID []byte				//交易ID 根据整个 Transcation
 	VIn []TAInput			//输出
 	VOut []TAOutput			//输入
 }
 
+func (ta *Transaction)SetID() {
+	var encoded bytes.Buffer
+	var hash [32]byte
+
+	enc := gob.NewEncoder(&encoded)
+	err := enc.Encode(ta)
+
+	if err != nil {
+		fmt.Println("encode error when ta setid")
+		panic(err)
+	}
+
+	hash = sha256.Sum256(encoded.Bytes())
+
+	ta.ID = hash[:]
+}
+
 
 //创建 一个创世交易 也就是 新增链时的第一个
-func NewGenesisTA(to, data string)  {
+func NewGenesisTA(to, data string) *Transaction {
 	if data == "" {
 		data = fmt.Sprintf("reward to '%s'", to)
 	}
@@ -33,7 +55,7 @@ func NewGenesisTA(to, data string)  {
 
 	ta := Transaction{nil, []TAInput{tain}, []TAOutput{taout}}
 
-	ta.set
-}
+	ta.SetID()
 
-™
+	return &ta
+}

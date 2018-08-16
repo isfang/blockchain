@@ -9,6 +9,7 @@ import (
 
 const dbFile = "blockchain.db"
 const blocksBucket = "blocks"
+const genesisCreateData = "create data. heiheihei"
 
 type BlockChain struct {
 	Tip []byte
@@ -62,30 +63,28 @@ func CreateBlockchain(address string) *BlockChain {
 		log.Panic(err)
 	}
 
-	//err = db.Update(func(tx *bolt.Tx) error {
-	//	cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
-	//	genesis := NewGenesisBlock(cbtx)
-	//
-	//	b, err := tx.CreateBucket([]byte(blocksBucket))
-	//	if err != nil {
-	//		log.Panic(err)
-	//	}
-	//
-	//	err = b.Put(genesis.Hash, genesis.Serialize())
-	//	if err != nil {
-	//		log.Panic(err)
-	//	}
-	//
-	//	err = b.Put([]byte("l"), genesis.Hash)
-	//	if err != nil {
-	//		log.Panic(err)
-	//	}
-	//	tip = genesis.Hash
-	//
-	//	return nil
-	//})
-
 	err = db.Update(func(tx *bolt.Tx) error {
+		//创世交易,也就是新增的第一个链
+		cbax := NewGenesisTA(address, genesisCreateData)
+		genesis := NewGenesisBlock(cbax)
+
+
+		b, err := tx.CreateBucket([]byte(blocksBucket))
+		if err != nil {
+			panic(err)
+		}
+
+		err = b.Put(genesis.Hash, genesis.Serialize())
+		if err != nil {
+			panic(err)
+		}
+
+		err = b.Put([]byte("l"), genesis.Hash)
+		if err != nil {
+			panic(err)
+		}
+
+		tip = genesis.Hash
 
 		return nil
 	})
@@ -94,8 +93,9 @@ func CreateBlockchain(address string) *BlockChain {
 		log.Panic(err)
 	}
 
+	bc := BlockChain{Tip:tip, BlotDB:db}
 
-
+	return &bc
 }
 
 func (bc *BlockChain)AddBlock(str string)  {
@@ -107,32 +107,35 @@ func (bc *BlockChain)AddBlock(str string)  {
 	//
 	//b.Blocks = append(b.Blocks, targetBlock)
 
-	var lastHash []byte
-	err := bc.BlotDB.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(blocksBucket))
-		lastHash = b.Get([]byte("l"))
-		return nil
-	})
-	if err != nil {
-		log.Panic(err)
-	}
+	//#==============
+	//var lastHash []byte
+	//err := bc.BlotDB.View(func(tx *bolt.Tx) error {
+	//	b := tx.Bucket([]byte(blocksBucket))
+	//	lastHash = b.Get([]byte("l"))
+	//	return nil
+	//})
+	//if err != nil {
+	//	log.Panic(err)
+	//}
+	//
+	//nb := NewBlock(str, lastHash)
+	//
+	//bc.BlotDB.Update(func(tx *bolt.Tx) error {
+	//	b := tx.Bucket([]byte(blocksBucket))
+	//	err := b.Put(nb.Hash, nb.Serialize())
+	//	if err != nil {
+	//		log.Panic(err)
+	//	}
+	//	b.Put([]byte("l"), nb.Hash)
+	//	if err != nil {
+	//		log.Panic(err)
+	//	}
+	//	bc.Tip = nb.Hash
+	//
+	//	return nil
+	//})
 
-	nb := NewBlock(str, lastHash)
 
-	bc.BlotDB.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(blocksBucket))
-		err := b.Put(nb.Hash, nb.Serialize())
-		if err != nil {
-			log.Panic(err)
-		}
-		b.Put([]byte("l"), nb.Hash)
-		if err != nil {
-			log.Panic(err)
-		}
-		bc.Tip = nb.Hash
-
-		return nil
-	})
 }
 
 
