@@ -26,6 +26,10 @@ type Transaction struct {
 	VOut []TAOutput			//输入
 }
 
+func (ta *Transaction)IsCoinbase()bool {
+	return len(ta.VIn) == 1 && len(ta.VIn[0].TAId) == 0 && ta.VIn[0].VAOut == -1
+}
+
 func (ta *Transaction)SetID() {
 	var encoded bytes.Buffer
 	var hash [32]byte

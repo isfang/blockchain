@@ -7,6 +7,7 @@ import (
 	"os"
 	"net"
 	"net/mail"
+	"encoding/hex"
 )
 
 const dbFile = "blockchain.db"
@@ -181,14 +182,47 @@ func dbExists() bool  {
 }
 
 //从address中找到 amount 的余量
+//FindSpendableOutputs
 func (b *BlockChain)UTXO(address string, amount int)  {
+
 	 usefulOutputs := make(map[string][]int)
 }
 
 //找出全部的没有用掉的交易Transaction
-func (b *BlockChain)UnspentTransaction(address string) []Transaction  {
+//FindUnspentTransactions
+func (bc *BlockChain)UnspentTransactions(address string) []Transaction  {
 
 	var result []Transaction
 
+	spentTAs := make(map[string][]int)
+
+	iterator := bc.Iterator()
+
+	for {
+		b := iterator.Next()
+
+		for _, tx := range b.Transactions {
+			txId := hex.EncodeToString(tx.ID)
+
+			Loop:
+				for outIdx, out := range tx.VOut {
+
+					//处理被用掉的输出
+					if spentTAs[txId] != nil {
+						for _, spentOut := range spentTAs[txId] {
+							//???
+							if spentOut == outIdx{
+								 continue Loop
+							}
+						}
+					}
+
+					//
+					if tx.IsCoinbase() == false {
+						
+					}
+				}
+		}
+	}
 }
 
